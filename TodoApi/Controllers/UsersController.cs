@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,6 +25,8 @@ namespace TodoApi.Controllers
 
         // GET: api/<UsersController>
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<User>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<IEnumerable<User>> Get()
         {
             var users = await _userService.GetAllUsers();
@@ -31,6 +35,8 @@ namespace TodoApi.Controllers
 
         // GET api/<UsersController>/5
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<User>> Get(int id)
         {
             var user = await _userService.GetUserById(id);
