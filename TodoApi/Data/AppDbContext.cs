@@ -16,7 +16,8 @@ namespace TodoApi.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<User>().HasMany(u => u.Tasks).WithOne(t => t.User).OnDelete(DeleteBehavior.Cascade);
+
         }
 
         public DbSet<UserTask> UserTasks { get; set; }

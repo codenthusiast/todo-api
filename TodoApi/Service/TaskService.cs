@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TodoApi.Core.DTOs;
 using TodoApi.Core.Entities;
 using TodoApi.Core.Enums;
 using TodoApi.Core.Interfaces;
@@ -18,10 +19,22 @@ namespace TodoApi.Service
             _taskRepository = repository;
         }
 
-        public async Task<UserTask> CreateTask(UserTask task)
+        public async Task<GetTaskDTO> CreateTask(CreateTaskDTO dto)
         {
+            var task = new UserTask
+            {
+                Description = dto.Description,
+                UserId = dto.UserId,
+                State = dto.TaskState
+            };
             var result = await _taskRepository.CreateAsync(task);
-            return result;
+            return new GetTaskDTO 
+            {
+                Description = result.Description,
+                UserId = result.UserId,
+                TaskState = result.State,
+                Id = result.Id
+            };
         }
 
         public async Task DeleteTask(int id)
@@ -29,19 +42,64 @@ namespace TodoApi.Service
             await _taskRepository.DeleteAsync(id);
         }
 
-        public async Task<IEnumerable<UserTask>> GetAllTasks()
+        public async Task<IEnumerable<GetTaskDTO>> GetAllTasks()
         {
-            return await _taskRepository.GetAllAsync();
+            var result =  await _taskRepository.GetAllAsync();
+            var tasks = result.Select(t => new GetTaskDTO
+            {
+                Description = t.Description,
+                TaskState = t.State,
+                Id = t.Id,
+                UserId = t.UserId
+            });
+
+            return tasks;
         }
 
-        public async Task<UserTask> GetTask(int taskId)
+        public async Task<GetTaskDTO> GetTask(int taskId)
         {
-            return await _taskRepository.GetByIdAsync(taskId);
+            var result =  await _taskRepository.GetByIdAsync(taskId);
+            if(result == null)
+            {
+                return null;
+            }
+
+            var task = new GetTaskDTO
+            {
+                Description = result.Description,
+                TaskState = result.State,
+                Id = result.Id,
+                UserId = result.UserId
+            };
+
+            return task;
+
         }
 
-        public async Task<IEnumerable<UserTask>> GetTasksForUser(int userId)
+        public async Task<UserTask> GetTaskForUpdate(int taskId)
         {
-            return await _taskRepository.FindAsync(t => t.UserId == userId);
+            var result =  await _taskRepository.GetByIdAsync(taskId);
+            if(result == null)
+            {
+                return null;
+            }
+
+            return result;
+
+        }
+
+        public async Task<IEnumerable<GetTaskDTO>> GetTasksForUser(int userId)
+        {
+            var result = await _taskRepository.FindAsync(t => t.UserId == userId);
+            var tasks = result.Select(t => new GetTaskDTO
+            {
+                Description = t.Description,
+                TaskState = t.State,
+                Id = t.Id,
+                UserId = t.UserId
+            });
+
+            return tasks;
         }
 
         public async Task SetTaskAsDone(int taskId)
@@ -54,9 +112,12 @@ namespace TodoApi.Service
             }
         }
 
-        public async Task UpdateTask(UserTask task)
+        public async Task UpdateTask(CreateTaskDTO dto, UserTask existing)
         {
-            await _taskRepository.UpdateAsync(task);
+            existing.Description = dto.Description;
+            existing.State = dto.TaskState;
+            existing.UserId = dto.UserId;
+            await _taskRepository.UpdateAsync(existing);
         }
     }
 }

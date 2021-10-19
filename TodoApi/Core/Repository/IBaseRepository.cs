@@ -15,6 +15,6 @@ namespace TodoApi.Core.Repository
         Task<T> CreateAsync(T entity);
         Task UpdateAsync(T entity);
         Task DeleteAsync(int id);
-
+        IQueryable Query(Expression<Func<T, bool>> predicate);
     }
 }

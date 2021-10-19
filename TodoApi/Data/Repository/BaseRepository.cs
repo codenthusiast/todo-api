@@ -11,8 +11,8 @@ namespace TodoApi.Data.Repository
 {
     public class BaseRepository<T> : IBaseRepository<T> where T: BaseEntity
     {
-        private readonly AppDbContext _dbContext;
-        private DbSet<T> _table = null;
+        protected readonly AppDbContext _dbContext;
+        protected DbSet<T> _table = null;
         public BaseRepository(AppDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -36,17 +36,22 @@ namespace TodoApi.Data.Repository
 
         public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
         {
-            return await _table.Where(predicate).ToListAsync();
+            return await _table.Where(predicate).AsNoTracking().ToListAsync();
         }
 
-        public async  Task<IEnumerable<T>> GetAllAsync()
+        public IQueryable Query(Expression<Func<T, bool>> predicate)
         {
-            return await _table.ToListAsync();
+            return _table.Where(predicate).AsNoTracking();
         }
 
-        public async Task<T> GetByIdAsync(int id)
+        public virtual async  Task<IEnumerable<T>> GetAllAsync()
         {
-            return await _table.FindAsync(id);
+            return await _table.AsNoTracking().ToListAsync();
+        }
+
+        public virtual async Task<T> GetByIdAsync(int id)
+        {
+            return await _table.AsNoTracking<T>().FirstOrDefaultAsync(t => t.Id == id);
         }
 
         public async Task UpdateAsync(T entity)
