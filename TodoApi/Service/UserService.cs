@@ -6,14 +6,15 @@ using TodoApi.Core.DTOs;
 using TodoApi.Core.Entities;
 using TodoApi.Core.Interfaces;
 using TodoApi.Core.Repository;
+using TodoApi.Data.Repository;
 
 namespace TodoApi.Service
 {
     public class UserService : IUserService
     {
-        private readonly IBaseRepository<User> _userRepository;
+        private readonly UserRepository _userRepository;
 
-        public UserService(IBaseRepository<User> repository)
+        public UserService(UserRepository repository)
         {
             _userRepository = repository;
         }

@@ -34,6 +34,7 @@ namespace TodoApi
         {
             services.AddDbContext<AppDbContext>(option => option.UseMySQL(Configuration.GetConnectionString("DefaultConnection")));
             services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+            services.AddScoped(typeof(UserRepository));
             services.AddScoped<ITaskService, TaskService>();
             services.AddScoped<IUserService, UserService>();
             services.AddControllers();
