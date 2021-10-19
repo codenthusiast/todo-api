@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TodoApi.Core.DTOs;
 using TodoApi.Core.Entities;
 using TodoApi.Core.Interfaces;
 
@@ -23,10 +24,10 @@ namespace TodoApi.Controllers
 
         // GET: api/<TasksController>
         [HttpGet]
-        public async Task<IEnumerable<UserTask>> Get()
+        public async Task<IEnumerable<GetTaskDTO>> Get()
         {
-            var users = await _taskService.GetAllTasks();
-            return users;
+            var tasks = await _taskService.GetAllTasks();
+            return tasks;
         }
 
         // GET api/<TasksController>/5
@@ -43,22 +44,22 @@ namespace TodoApi.Controllers
 
         // POST api/<TasksController>
         [HttpPost]
-        public async Task<ActionResult<UserTask>> Post([FromBody] UserTask user)
+        public async Task<ActionResult<GetTaskDTO>> Post([FromBody] CreateTaskDTO task)
         {
-            var newUserTask = await _taskService.CreateTask(user);
-            return CreatedAtAction(nameof(Get), new { id = newUserTask.Id });
+            var newUserTask = await _taskService.CreateTask(task);
+            return CreatedAtAction(nameof(Get), new { id = newUserTask.Id }, newUserTask);
         }
 
         // PUT api/<TasksController>/5
         [HttpPut("{id}")]
-        public async Task<ActionResult> Put(int id, [FromBody] UserTask user)
+        public async Task<ActionResult> Put(int id, [FromBody] CreateTaskDTO task)
         {
-            var userToUpdate = await _taskService.GetTask(id);
-            if (userToUpdate == null)
+            var taskToUpdate = await _taskService.GetTaskForUpdate(id);
+            if (taskToUpdate == null)
             {
                 return NotFound("Task not found");
             }
-            await _taskService.UpdateTask(user);
+            await _taskService.UpdateTask(task, taskToUpdate);
             return NoContent();
         }
 

@@ -36,17 +36,17 @@ namespace TodoApi.Data.Repository
 
         public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
         {
-            return await _table.Where(predicate).ToListAsync();
+            return await _table.Where(predicate).AsNoTracking().ToListAsync();
         }
 
         public async  Task<IEnumerable<T>> GetAllAsync()
         {
-            return await _table.ToListAsync();
+            return await _table.AsNoTracking().ToListAsync();
         }
 
         public async Task<T> GetByIdAsync(int id)
         {
-            return await _table.FindAsync(id);
+            return await _table.AsNoTracking<T>().FirstOrDefaultAsync(t => t.Id == id);
         }
 
         public async Task UpdateAsync(T entity)

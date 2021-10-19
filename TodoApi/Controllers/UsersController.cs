@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TodoApi.Core.DTOs;
 using TodoApi.Core.Entities;
 using TodoApi.Core.Interfaces;
 
@@ -25,9 +26,9 @@ namespace TodoApi.Controllers
 
         // GET: api/<UsersController>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<User>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<GetUserDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        public async Task<IEnumerable<User>> Get()
+        public async Task<IEnumerable<GetUserDTO>> Get()
         {
             var users = await _userService.GetAllUsers();
             return users;
@@ -35,9 +36,9 @@ namespace TodoApi.Controllers
 
         // GET api/<UsersController>/5
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GetUserDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<User>> Get(int id)
+        public async Task<ActionResult<GetUserDTO>> Get(int id)
         {
             var user = await _userService.GetUserById(id);
             if(user == null)
@@ -49,22 +50,22 @@ namespace TodoApi.Controllers
 
         // POST api/<UsersController>
         [HttpPost]
-        public async Task<ActionResult<User>> Post([FromBody] User user)
+        public async Task<ActionResult<GetUserDTO>> Post([FromBody] CreateUserDTO user)
         {
             var newUser = await _userService.CreateUser(user);
-            return CreatedAtAction(nameof(Get), new { id = newUser.Id});
+            return CreatedAtAction(actionName: nameof(Get), routeValues: new { id = newUser.Id}, newUser);
         }
 
         // PUT api/<UsersController>/5
         [HttpPut("{id}")]
-        public async Task<ActionResult> Put(int id, [FromBody] User user)
+        public async Task<ActionResult> Put(int id, [FromBody] CreateUserDTO update)
         {
-            var userToUpdate = await _userService.GetUserById(id);
+            var userToUpdate = await _userService.GetUserByIdForUpdate(id);
             if(userToUpdate == null)
             {
                 return NotFound();
             }
-            await _userService.UpdateUser(user);
+            await _userService.UpdateUser(update, userToUpdate);
             return NoContent();
         }
 

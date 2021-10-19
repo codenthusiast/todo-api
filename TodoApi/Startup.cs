@@ -12,7 +12,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TodoApi.Core.Interfaces;
+using TodoApi.Core.Repository;
 using TodoApi.Data;
+using TodoApi.Data.Repository;
+using TodoApi.Service;
 
 namespace TodoApi
 {
@@ -29,6 +33,9 @@ namespace TodoApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<AppDbContext>(option => option.UseMySQL(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+            services.AddScoped<ITaskService, TaskService>();
+            services.AddScoped<IUserService, UserService>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
