@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using TodoApi.Core.Entities;
 
@@ -22,5 +23,25 @@ namespace TodoApi.Data
 
         public DbSet<UserTask> UserTasks { get; set; }
         public DbSet<User> Users { get; set; }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var entries = ChangeTracker
+                            .Entries()
+                            .Where(e => e.Entity is BaseEntity && (e.State == EntityState.Added || e.State == EntityState.Modified));
+
+            foreach (var entityEntry in entries)
+            {
+                ((BaseEntity)entityEntry.Entity).ModifiedAt = DateTime.Now;
+
+                if (entityEntry.State == EntityState.Added)
+                {
+
+                    ((BaseEntity)entityEntry.Entity).CreatedAt = DateTime.Now;
+                }
+            }
+
+            return base.SaveChangesAsync(cancellationToken);
+        }
     }
 }
