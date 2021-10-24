@@ -1,0 +1,29 @@
+﻿version: "3.9"
+services:
+
+    db:
+        image: mysql
+        ports:
+            - "3306:3306"
+        volumes:
+            - dbdata:/var/lib/mysql
+
+        environment:
+            - MYSQL_ROOT_PASSWORD
+            - MYSQL_DATABASE
+            - MYSQL_USER
+            - MYSQL_PASSWORD
+        restart: always
+
+    app:
+        #image: gafar.popoola/todo-api:latest
+        build: .
+        ports:
+            - "5080:80"
+        depends_on:
+            - db
+        environment:
+            - MYSQL_CONN_STRING
+        restart: always
+volumes: 
+    dbdata:
